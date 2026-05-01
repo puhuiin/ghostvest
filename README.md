@@ -51,7 +51,7 @@ GhostVest 是面向 DAO 生态的**隐私薪酬执行层**。它通过确定性 
 
 ### Claim Portal — 三步加载动画
 
-<img src="https://raw.githubusercontent.com/puhuiin/ghostvest/main/docs/screenshot-claim-loading.png" alt="GhostVest Claim Portal 三步加载动画界面，深色终端风格，打字机效果展示从 0G 网络获取凭证、推导隐身私钥、提款签名三个步骤" width="267" />
+<img src="https://raw.githubusercontent.com/puhuiin/ghostvest/main/docs/screenshot-claim-loading.png" alt="GhostVest Claim Portal 三步加载动画界面，深色终端风格，打字机效果展示从 0G 网络获取凭证、推导隐身私钥、提款签名三个步骤" width="400" />
 
 *深色终端主题，打字机逐字揭示三步状态：获取加密凭证 → 推导隐身私钥 → 提款签名*
 
@@ -59,7 +59,7 @@ GhostVest 是面向 DAO 生态的**隐私薪酬执行层**。它通过确定性 
 
 ### Solscan 交易成功弹窗
 
-<img src="https://raw.githubusercontent.com/puhuiin/ghostvest/main/docs/screenshot-solscan-modal.png" alt="GhostVest 提款成功弹窗，绿色渐变按钮链接 Solscan 链上交易，提示资金已转入无历史记录的新地址" width="267" />
+<img src="https://raw.githubusercontent.com/puhuiin/ghostvest/main/docs/screenshot-solscan-modal.png" alt="GhostVest 提款成功弹窗，绿色渐变按钮链接 Solscan 链上交易，提示资金已转入无历史记录的新地址" width="400" />
 
 *绿色渐变大按钮直达 Solscan，下方提示「资金已转入无历史记录的新地址，隐私链路完成」*
 
