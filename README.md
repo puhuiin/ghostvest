@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/puhuiin/ghostvest/main/docs/ghostvest-banner.png" alt="GhostVest Banner" width="800" />
+<img src="https://raw.githubusercontent.com/puhuiin/ghostvest/main/docs/ghostvest-logo.png" alt="GhostVest - The Privacy Execution Layer for Web3 Native Payroll" width="800" />
 
 # GhostVest
 
