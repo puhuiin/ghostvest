@@ -1,0 +1,21 @@
+{
+  "name": "ghostvest-tee-crypto",
+  "version": "0.1.0",
+  "private": true,
+  "description": "GhostVest 密码学内核 - 隐身地址推导 (Python/TS 双端一致)",
+  "scripts": {
+    "test:crypto": "vitest run",
+    "test:crypto:watch": "vitest",
+    "generate:vectors": "cd ../backend && python -c \"from app.crypto_utils import *; vectors = generate_cross_validation_vectors(100); save_test_vectors(vectors, '../tee_crypto/test_vectors.json')\"",
+    "test:cross": "npm run generate:vectors && vitest run stealth.test.ts -t 'Python 交叉验证'"
+  },
+  "dependencies": {
+    "@noble/hashes": "1.4.0",
+    "@solana/web3.js": "1.91.0",
+    "rpc-websockets": "^7.5.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.3",
+    "vitest": "^1.6.0"
+  }
+}
