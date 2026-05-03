@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GhostVest — 交互式项目演示</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0e17;--surface:#111827;--surface2:#1a2332;--border:#1e293b;
+  --green:#22c55e;--green-dim:#15803d;--green-glow:rgba(34,197,94,.15);
+  --blue:#3b82f6;--yellow:#eab308;--red:#ef4444;--cyan:#06b6d4;--purple:#a855f7;
+  --text:#e2e8f0;--dim:#94a3b8;--muted:#64748b;
+  --mono:'Courier New',Consolas,'Liberation Mono',monospace;
+  --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.6;overflow-x:hidden}
+
+/* NAV */
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,14,23,.88);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 2rem}
+.nav-logo{font-weight:800;font-size:1.15rem;color:var(--green)}
+.nav-links{display:flex;gap:1.5rem;font-size:.82rem}
+.nav-links a{color:var(--dim);text-decoration:none;transition:color .2s}
+.nav-links a:hover{color:var(--green)}
+.nav-links a.active{color:var(--green)}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:6rem 2rem 4rem;position:relative}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 40%,rgba(34,197,94,.07) 0%,transparent 65%);pointer-events:none}
+.hero h1{font-size:clamp(2.8rem,7vw,5rem);font-weight:900;letter-spacing:-.04em;line-height:1.1}
+.hero h1 em{font-style:normal;color:var(--green)}
+.hero .sub{font-size:1.2rem;color:var(--dim);max-width:560px;margin:1rem auto 0}
+.badge-row{display:flex;gap:.6rem;flex-wrap:wrap;justify-content:center;margin-top:1.5rem}
+.b{display:inline-flex;align-items:center;gap:.3rem;padding:.25rem .7rem;border-radius:999px;font-size:.72rem;font-weight:600;border:1px solid var(--border);background:var(--surface)}
+.b-g{color:var(--green);border-color:var(--green-dim)}.b-b{color:var(--blue);border-color:rgba(59,130,246,.3)}
+.b-p{color:var(--purple);border-color:rgba(168,85,247,.3)}.b-c{color:var(--cyan);border-color:rgba(6,182,212,.3)}
+.hero-cta{display:flex;gap:1rem;margin-top:2.5rem;flex-wrap:wrap;justify-content:center}
+.btn{display:inline-flex;align-items:center;gap:.5rem;padding:.7rem 1.8rem;border-radius:8px;font-size:.9rem;font-weight:600;border:none;cursor:pointer;transition:all .2s;text-decoration:none;font-family:var(--sans)}
+.btn-g{background:var(--green);color:#000}.btn-g:hover{background:#16a34a;transform:translateY(-1px)}
+.btn-o{background:var(--surface2);color:var(--text);border:1px solid var(--border)}.btn-o:hover{border-color:var(--green)}
+
+/* SECTIONS */
+section{padding:5rem 2rem;max-width:1060px;margin:0 auto}
+h2.section-title{font-size:2rem;font-weight:800;text-align:center;margin-bottom:.4rem}
+.section-sub{text-align:center;color:var(--dim);max-width:640px;margin:0 auto 3rem;font-size:.92rem}
+
+/* CARDS */
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.25rem}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;transition:transform .2s,box-shadow .2s}
+.card:hover{transform:translateY(-3px);box-shadow:0 8px 30px rgba(0,0,0,.4)}
+.card-icon{font-size:1.8rem;margin-bottom:.6rem}
+.card h3{font-size:1rem;margin-bottom:.35rem}
+.card p{font-size:.82rem;color:var(--dim)}
+
+/* ARCHITECTURE FLOW */
+.arch{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:.4rem;margin:2rem 0;font-family:var(--mono);font-size:.78rem}
+.arch-node{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.5rem .9rem;transition:all .3s;white-space:nowrap}
+.arch-node.on{border-color:var(--green);box-shadow:0 0 14px var(--green-glow);color:var(--green)}
+.arch-arr{color:var(--green);font-size:1.1rem;font-weight:700}
+
+/* TERMINAL */
+.term{background:#0c0c0c;border:1px solid #222;border-radius:10px;overflow:hidden;font-family:var(--mono);font-size:.78rem;max-width:720px;margin:0 auto}
+.term-bar{background:#1a1a1a;padding:.4rem .7rem;display:flex;gap:5px;align-items:center}
+.dot{width:11px;height:11px;border-radius:50%}
+.dr{background:#ff5f57}.dy{background:#febc2e}.dg{background:#28c840}
+.term-title{color:#666;font-size:.7rem;margin-left:.4rem}
+.term-body{padding:.9rem 1.1rem;min-height:220px;line-height:1.75}
+.tl{opacity:0;transform:translateY(3px);transition:opacity .25s,transform .25s}
+.tl.show{opacity:1;transform:none}
+.ts{color:#444}.t-ok{color:var(--green)}.t-st{color:var(--blue)}.t-w{color:var(--yellow)}.t-i{color:var(--cyan)}
+
+/* LIVE DEMO */
+.demo-box{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:2rem;max-width:660px;margin:0 auto;text-align:center}
+.demo-emoji{font-size:3rem;margin-bottom:.5rem}
+.demo-steps{text-align:left;margin:1.25rem auto;max-width:380px}
+.ds{display:flex;align-items:center;gap:.65rem;padding:.45rem 0;font-size:.88rem;color:var(--muted);transition:color .3s}
+.ds.active{color:var(--text)}.ds.done{color:var(--green)}
+.si{width:22px;height:22px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.65rem;flex-shrink:0;transition:all .3s}
+.ds.active .si{border-color:var(--blue);color:var(--blue)}
+.ds.done .si{border-color:var(--green);background:var(--green);color:#000}
+.prog{width:100%;height:3px;background:var(--border);border-radius:2px;margin-top:1.2rem;overflow:hidden}
+.prog-bar{height:100%;background:var(--green);width:0;transition:width .7s ease}
+
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s}
+.modal-bg.show{opacity:1;pointer-events:auto}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2.5rem;max-width:440px;width:92%;text-align:center;transform:scale(.92);transition:transform .3s}
+.modal-bg.show .modal{transform:scale(1)}
+.modal-chk{font-size:2.8rem;margin-bottom:.6rem}
+.modal-btn{display:inline-flex;align-items:center;gap:.5rem;padding:.8rem 2.2rem;background:linear-gradient(135deg,#22c55e,#16a34a);color:#000;font-weight:700;font-size:1rem;border:none;border-radius:10px;cursor:pointer;transition:transform .2s;box-shadow:0 4px 20px rgba(34,197,94,.3)}
+.modal-btn:hover{transform:scale(1.04)}
+.modal-hint{font-size:.72rem;color:var(--muted);margin-top:.8rem}
+
+/* COMPARISON TABLE */
+table.cmp{width:100%;border-collapse:collapse;font-size:.82rem;margin:2rem 0}
+.cmp th,.cmp td{padding:.65rem .9rem;text-align:left;border-bottom:1px solid var(--border)}
+.cmp th{background:var(--surface2);color:var(--dim);font-weight:600;font-size:.75rem;text-transform:uppercase;letter-spacing:.04em}
+.cmp .hi{color:var(--green);font-weight:600}
+.cmp .lo{color:var(--red);opacity:.7}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;margin:2rem 0}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.2rem;text-align:center}
+.stat-n{font-size:2.2rem;font-weight:800;color:var(--green);font-family:var(--mono)}
+.stat-l{font-size:.78rem;color:var(--dim);margin-top:.15rem}
+
+/* SETUP STEPS */
+.steps{counter-reset:st;max-width:580px;margin:0 auto}
+.step{position:relative;padding-left:2.8rem;margin-bottom:1.8rem;counter-increment:st}
+.step::before{content:counter(st);position:absolute;left:0;top:0;width:1.8rem;height:1.8rem;background:var(--green);color:#000;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.78rem}
+.step h4{font-size:.95rem;margin-bottom:.25rem}
+.step p{font-size:.82rem;color:var(--dim)}
+.step code{background:var(--surface2);padding:.1rem .4rem;border-radius:3px;font-family:var(--mono);font-size:.76rem;color:var(--cyan)}
+
+/* DEMO FORMATS */
+.format-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.25rem}
+.format-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;text-align:center}
+.format-card .fi{font-size:2.5rem;margin-bottom:.6rem}
+.format-card h3{font-size:1rem;margin-bottom:.4rem}
+.format-card p{font-size:.8rem;color:var(--dim);line-height:1.5}
+.format-card .tip{margin-top:.6rem;font-size:.72rem;color:var(--yellow);background:rgba(234,179,8,.08);border-radius:6px;padding:.4rem .6rem}
+
+/* FOOTER */
+.footer{text-align:center;padding:2.5rem 2rem;color:var(--muted);font-size:.75rem;border-top:1px solid var(--border);margin-top:3rem}
+
+/* ANIMATIONS */
+.fade{opacity:0;transform:translateY(25px);transition:opacity .5s,transform .5s}
+.fade.vis{opacity:1;transform:none}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* RESPONSIVE */
+@media(max-width:640px){
+  .nav-links{display:none}
+  .arch{flex-direction:column}.arch-arr{transform:rotate(90deg)}
+  section{padding:3rem 1rem}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <span class="nav-logo">GhostVest</span>
+  <div class="nav-links">
+    <a href="#feat">功能</a>
+    <a href="#arch">架构</a>
+    <a href="#term">终端</a>
+    <a href="#demo">演示</a>
+    <a href="#cmp">对比</a>
+    <a href="#setup">开始</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero" id="top">
+  <div class="badge-row">
+    <span class="b b-g">Solana Devnet</span>
+    <span class="b b-b">HMAC-SHA256</span>
+    <span class="b b-p">AI Audit</span>
+    <span class="b b-c">0G Storage</span>
+  </div>
+  <h1><em>Ghost</em>Vest</h1>
+  <p class="sub">The Privacy Execution Layer for Web3 Native Payroll</p>
+  <p style="color:var(--muted);font-size:.88rem;max-width:520px;margin:.6rem auto 0">为 DAO 生态打造的隐私薪酬基础设施 — 确定性隐身地址 + AI 审计 + 0G 存证</p>
+  <div class="hero-cta">
+    <a href="#demo" class="btn btn-g">启动交互演示</a>
+    <a href="#setup" class="btn btn-o">快速开始</a>
+    <a href="https://github.com/puhuiin/ghostvest" target="_blank" class="btn btn-o">GitHub ↗</a>
+  </div>
+</header>
+
+<!-- FEATURES -->
+<section id="feat" class="fade">
+  <h2 class="section-title">核心能力</h2>
+  <p class="section-sub">GhostVest 在 DAO 资金流和贡献者钱包之间插入一个隐私执行层，实现"发了钱但没人知道发给了谁"。</p>
+  <div class="grid">
+    <div class="card"><div class="card-icon">🔐</div><h3>确定性隐身地址</h3><p>HMAC-SHA256(key=nonce, msg=pubkey) 派生全新 ed25519 密钥对，同一输入永远产出同一地址。</p></div>
+    <div class="card"><div class="card-icon">🤖</div><h3>AI 审计预言机</h3><p>TEE 内 Claude 引擎评估 PR 代码质量，score ≥ 0.7 才触发发放，锚定真实代码产出。</p></div>
+    <div class="card"><div class="card-icon">🌐</div><h3>0G 分布式存证</h3><p>加密 nonce 写入 0G Network，不可用时自动降级 fallback.json（5 分钟 TTL）。</p></div>
+    <div class="card"><div class="card-icon">⚡</div><h3>毫秒级全流程</h3><p>AI 审核 2s → 隐身派生 &lt;100ms → 链上转账 &lt;1s，端到端 4 秒内完成。</p></div>
+    <div class="card"><div class="card-icon">🧪</div><h3>跨语言密码学一致</h3><p>Python ↔ TypeScript 100 组随机向量字节级交叉验证，零差异通过。</p></div>
+    <div class="card"><div class="card-icon">🛡️</div><h3>防御性演示架构</h3><p>USE_MOCK_AI 硬编码 True，0G 自动降级，前端 Toast 统一兜底，Demo 现场零事故。</p></div>
+  </div>
+</section>
+
+<!-- ARCHITECTURE -->
+<section id="arch" class="fade">
+  <h2 class="section-title">系统架构</h2>
+  <p class="section-sub">GitHub PR → AI TEE 审核 → HMAC 隐身派生 → 0G 存证 → Solana 资金发放</p>
+  <div class="arch">
+    <div class="arch-node" id="an0">GitHub PR</div><div class="arch-arr">→</div>
+    <div class="arch-node" id="an1">AI TEE Audit</div><div class="arch-arr">→</div>
+    <div class="arch-node" id="an2">HMAC-SHA256</div><div class="arch-arr">→</div>
+    <div class="arch-node" id="an3">Stealth Keypair</div><div class="arch-arr">→</div>
+    <div class="arch-node" id="an4">0G Storage</div><div class="arch-arr">→</div>
+    <div class="arch-node" id="an5">Solana Transfer</div>
+  </div>
+  <div style="text-align:center"><button class="btn btn-g" style="font-size:.82rem;padding:.45rem 1.3rem" onclick="animArch()">播放架构动画</button></div>
+</section>
+
+<!-- TERMINAL -->
+<section id="term" class="fade">
+  <h2 class="section-title">终端实时模拟</h2>
+  <p class="section-sub">模拟后端 Rich 日志输出，展示完整的审核 → 派生 → 发放流程。</p>
+  <div class="term">
+    <div class="term-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div><span class="term-title">ghostvest-backend — uvicorn</span></div>
+    <div class="term-body" id="tb"></div>
+  </div>
+  <div style="text-align:center;margin-top:.8rem"><button class="btn btn-g" id="tbtn" style="font-size:.82rem;padding:.45rem 1.3rem" onclick="runTerm()">运行模拟</button></div>
+</section>
+
+<!-- INTERACTIVE DEMO -->
+<section id="demo" class="fade">
+  <h2 class="section-title">交互式 Claim 演示</h2>
+  <p class="section-sub">点击按钮，亲身体验贡献者的 Claim 全流程 — 三步加载动画 + Solscan 交易弹窗。</p>
+  <div class="demo-box">
+    <div class="demo-emoji" id="de">🚀</div>
+    <h3 id="dt" style="margin-bottom:.8rem">准备就绪</h3>
+    <div class="demo-steps">
+      <div class="ds" id="d0"><div class="si">1</div><span>从 0G 网络获取加密凭证…</span></div>
+      <div class="ds" id="d1"><div class="si">2</div><span>本地推导零知识隐身私钥…</span></div>
+      <div class="ds" id="d2"><div class="si">3</div><span>提款签名中…</span></div>
+    </div>
+    <div class="prog"><div class="prog-bar" id="pb"></div></div>
+    <button class="btn btn-g" id="dbtn" onclick="startClaim()" style="margin-top:1.2rem">一键无痕提款</button>
+  </div>
+</section>
+
+<!-- MODAL -->
+<div class="modal-bg" id="mg">
+  <div class="modal">
+    <div class="modal-chk">✅</div>
+    <h3 style="font-size:1.4rem;margin-bottom:.5rem">提款完成</h3>
+    <p style="color:var(--dim);font-size:.88rem;margin-bottom:1.3rem">资金已转入无历史记录的新地址，隐私链路完成。</p>
+    <button class="modal-btn" onclick="closeModal()">🔗 查看链上交易</button>
+    <p class="modal-hint">stealth address: <span style="font-family:var(--mono);color:var(--cyan)">BymrQNsC...foB4</span></p>
+  </div>
+</div>
+
+<!-- COMPARISON -->
+<section id="cmp" class="fade">
+  <h2 class="section-title">技术对比</h2>
+  <p class="section-sub">HMAC-SHA256 确定性派生 vs ZK 证明 vs 混币器，在兼容性、速度和复杂度之间的最优平衡。</p>
+  <table class="cmp">
+    <thead><tr><th>维度</th><th class="hi">GhostVest (HMAC)</th><th>ZK-based</th><th>Mixer</th></tr></thead>
+    <tbody>
+      <tr><td>钱包兼容性</td><td class="hi">100% (任何 ed25519)</td><td>需特定钱包</td><td>需特定合约</td></tr>
+      <tr><td>Gas 成本</td><td class="hi">可忽略</td><td class="lo">高（证明验证）</td><td>中等</td></tr>
+      <tr><td>延迟</td><td class="hi">&lt; 100ms</td><td class="lo">5-30 秒</td><td>不定</td></tr>
+      <tr><td>确定性</td><td class="hi">同输入 → 同地址</td><td>因实现而异</td><td class="lo">非确定性</td></tr>
+      <tr><td>链上足迹</td><td class="hi">单笔转账</td><td class="lo">复杂 calldata</td><td>多跳</td></tr>
+      <tr><td>可重新派生</td><td class="hi">✓ nonce + pubkey</td><td>✗</td><td>✗</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- STATS -->
+<section id="stats" class="fade">
+  <h2 class="section-title">项目数据</h2>
+  <p class="section-sub">GhostVest v0.1.0 核心指标，所有数据均可在仓库中复现验证。</p>
+  <div class="stats">
+    <div class="stat"><div class="stat-n" data-n="40">0</div><div class="stat-l">自动化测试</div></div>
+    <div class="stat"><div class="stat-n" data-n="100">0</div><div class="stat-l">交叉验证向量</div></div>
+    <div class="stat"><div class="stat-n" data-n="53">0</div><div class="stat-l">源代码文件</div></div>
+    <div class="stat"><div class="stat-n" data-n="15121">0</div><div class="stat-l">代码行数</div></div>
+    <div class="stat"><div class="stat-n" data-n="4">0</div><div class="stat-l">秒端到端延迟</div></div>
+    <div class="stat"><div class="stat-n" data-n="2">0</div><div class="stat-l">语言交叉验证</div></div>
+  </div>
+</section>
+
+<!-- SETUP -->
+<section id="setup" class="fade">
+  <h2 class="section-title">快速开始</h2>
+  <p class="section-sub">4 步启动 GhostVest 本地开发环境。</p>
+  <div class="steps">
+    <div class="step"><h4>克隆仓库</h4><p><code>git clone https://github.com/puhuiin/ghostvest.git && cd ghostvest</code></p></div>
+    <div class="step"><h4>启动后端</h4><p><code>cd backend && pip install -r requirements.txt</code><br><code>python -m uvicorn app.main:app --port 8000</code></p></div>
+    <div class="step"><h4>启动前端</h4><p><code>cd frontend && npm install && npm run dev</code></p></div>
+    <div class="step"><h4>打开浏览器</h4><p>访问 <code>http://localhost:3000/claim</code>，连接 Phantom 钱包，点击 Claim 体验全流程。</p></div>
+  </div>
+</section>
+
+<!-- DEMO FORMATS -->
+<section id="fmt" class="fade">
+  <h2 class="section-title">演示形式</h2>
+  <p class="section-sub">根据不同场景选择最合适的演示方式，每种形式都配有应急预案。</p>
+  <div class="format-grid">
+    <div class="format-card">
+      <div class="fi">🎤</div>
+      <h3>现场演示</h3>
+      <p>双端同时运行，实时展示后端终端日志 + 前端 Claim 动画。适合黑客松现场、技术分享会。</p>
+      <div class="tip">⚡ 应急：Mock 模式离线可用 + 备用录屏随时切换</div>
+    </div>
+    <div class="format-card">
+      <div class="fi">📹</div>
+      <h3>录屏展示</h3>
+      <p>3 分钟精剪视频：痛点引入 → 终端日志 → 前端动画 → Solscan 链上证明。适合异步评审。</p>
+      <div class="tip">⚡ 应急：提前录制备用版本，网络问题直接播放</div>
+    </div>
+    <div class="format-card">
+      <div class="fi">🖱️</div>
+      <h3>交互式体验</h3>
+      <p>本页面即为交互式演示。评委可自主点击按钮，体验三步动画和弹窗。零部署、零依赖。</p>
+      <div class="tip">⚡ 应急：纯静态 HTML，无需后端，浏览器打开即用</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <p>GhostVest v0.1.0 · Colosseum Hackathon 2026</p>
+  <p style="margin-top:.2rem">Privacy is not a feature. It is a prerequisite.</p>
+</footer>
+
+<script>
+// Scroll-based fade-in
+const obs = new IntersectionObserver(es => es.forEach(e => { if(e.isIntersecting){e.target.classList.add('vis');obs.unobserve(e.target);} }),{threshold:.15});
+document.querySelectorAll('.fade').forEach(el => obs.observe(el));
+
+// Stats counter
+const cobs = new IntersectionObserver(es => es.forEach(e => { if(e.isIntersecting){countUp(e.target,+e.target.dataset.n);cobs.unobserve(e.target);} }),{threshold:.5});
+document.querySelectorAll('.stat-n[data-n]').forEach(el => cobs.observe(el));
+function countUp(el,t){const d=1200,s=performance.now();(function f(n){const p=Math.min((n-s)/d,1);el.textContent=Math.floor((1-Math.pow(1-p,3))*t).toLocaleString();if(p<1)requestAnimationFrame(f);else el.textContent=t.toLocaleString();})(s);}
+
+// Architecture animation
+async function animArch(){for(let i=0;i<6;i++)document.getElementById('an'+i).classList.remove('on');for(let i=0;i<6;i++){document.getElementById('an'+i).classList.add('on');await sl(350);}await sl(700);for(let i=0;i<6;i++)document.getElementById('an'+i).classList.remove('on');}
+
+// Terminal simulation
+const tl=[{c:'i',t:'收到请求: PR=https://github.com/dao/pull/42, Wallet=DYw8jCTfwHNRJhhm...'},{c:'st',t:'任务创建: e20fe986-b779-4a...'},{c:'w',t:'AI Audit 开始审核: e20fe986-b779-4a...'},{c:'ok',t:'AI Audit Passed — score=0.98, auditor=mock, duration=2001ms'},{c:'st',t:'Deriving Stealth Key…'},{c:'ok',t:'隐身地址已生成: BymrQNsCznN4z1jV...'},{c:'i',t:'Nonce: 9697ee5402cd6945...'},{c:'w',t:'Storing encrypted nonce to 0G…'},{c:'ok',t:'Nonce stored — source=local'},{c:'w',t:'Submitting to Solana Devnet…'},{c:'ok',t:'交易完成: MOCK_SIG_BymrQNsC_1777626483...'}];
+let tr=false;
+async function runTerm(){if(tr)return;tr=true;const b=document.getElementById('tbtn');b.disabled=true;b.textContent='运行中…';const body=document.getElementById('tb');body.innerHTML='';for(const l of tl){const n=new Date();const ts=[n.getHours(),n.getMinutes(),n.getSeconds()].map(v=>String(v).padStart(2,'0')).join(':')+'.'+String(n.getMilliseconds()).padStart(3,'0');const d=document.createElement('div');d.className='tl';d.innerHTML=`<span class="ts">${ts}</span> <span class="t-${l.c}">${l.c==='ok'?'[+]':l.c==='st'?'[*]':l.c==='w'?'[~]':'[#]'} </span>${l.t}`;body.appendChild(d);requestAnimationFrame(()=>d.classList.add('show'));await sl(l.c==='w'?700:220);}b.disabled=false;b.textContent='重新运行';tr=false;}
+
+// Claim demo
+let cr=false;
+async function startClaim(){if(cr)return;cr=true;const b=document.getElementById('dbtn'),pb=document.getElementById('pb'),t=document.getElementById('dt'),e=document.getElementById('de');b.disabled=true;b.textContent='处理中…';e.textContent='⏳';for(let i=0;i<3;i++){const s=document.getElementById('d'+i);s.classList.add('active');t.textContent=s.querySelector('span').textContent;pb.style.width=((i+1)*33)+'%';await sl(700);s.classList.remove('active');s.classList.add('done');s.querySelector('.si').textContent='✓';}pb.style.width='100%';t.textContent='提款完成';e.textContent='✅';b.textContent='✅ 提款完成';b.style.background='var(--green-dim)';await sl(400);document.getElementById('mg').classList.add('show');cr=false;}
+function closeModal(){document.getElementById('mg').classList.remove('show');}
+
+function sl(ms){return new Promise(r=>setTimeout(r,ms));}
+</script>
+</body>
+</html>
